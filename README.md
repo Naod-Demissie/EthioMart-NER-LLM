@@ -9,6 +9,7 @@ This project focuses on extracting named entities from Telegram messages, tokeni
 ```
 ├── notebooks
 │   ├── 1.0.data-prepocessing-and-exploration.ipynb 
+│   ├── 2.0-data-auto-labeling.ipynb
 │   ├── README.md                 
 │   ├── __init__.py               
 │
@@ -19,6 +20,8 @@ This project focuses on extracting named entities from Telegram messages, tokeni
 │   ├── __init__.py               
 │   ├── preprocess_data.py               
 │   ├── scrape.py            
+│   ├── visualize.py           
+│   ├── label_data.py           
 │
 ├── src            
 │   ├── __init__.py               
@@ -29,8 +32,8 @@ This project focuses on extracting named entities from Telegram messages, tokeni
 ├── data            
 │   ├── processed
 │       ├── processed_data.csv
+│       ├── labeled_data.conll
 
-   
 ```
 
 ## Installation
