@@ -162,3 +162,53 @@ def plot_word_cloud(df, language=None):
         f"Word Cloud for {'All' if language is None else language.capitalize()} Messages"
     )
     plt.show()
+
+
+def plot_top_tokens(df, top_n=20):
+    """
+    Plot the top N most frequent tokens in a horizontal bar chart using the given font.
+
+    Parameters:
+    - df: DataFrame with a 'token' column containing the tokens
+    - top_n: The number of top frequent tokens to display (default is 20)
+    - font_path: Path to the Amharic font file (default is set to a specific path)
+    """
+    # Load the font
+    font_path = "/content/drive/MyDrive/10 acadamy/W5 Challenge/assets/Untitled Folder/NotoSerifEthiopic_Condensed-Regular.ttf"
+    prop = font_manager.FontProperties(fname=font_path)
+
+    # Get the top N most frequent tokens
+    top_tokens = df["token"].value_counts().head(top_n)
+
+    # Create a horizontal bar chart
+    plt.figure(figsize=(8, 4))
+    sns.barplot(x=top_tokens.values, y=top_tokens.index, palette="magma")
+
+    # Set the font for the entire plot, including labels, ticks, and title
+    plt.xlabel("Frequency", fontproperties=prop)
+    plt.ylabel("Token", fontproperties=prop)
+    plt.title(f"Top {top_n} Most Frequent Tokens", fontproperties=prop)
+
+    # Update tick labels to use the Amharic font as well
+    plt.xticks(fontproperties=prop)
+    plt.yticks(fontproperties=prop)
+    plt.show()
+
+
+def plot_label_distribution(df):
+    """
+    Plot the distribution of labels in a bar chart using the magma color palette.
+
+    Parameters:
+    - df: DataFrame with a 'label' column
+    """
+    # Get the label distribution
+    label_counts = df["label"].value_counts()
+
+    # Create a bar chart
+    plt.figure(figsize=(8, 4))
+    sns.barplot(x=label_counts.index, y=label_counts.values, palette="magma")
+    plt.xlabel("Label")
+    plt.ylabel("Count")
+    plt.title("Label Distribution")
+    plt.show()
