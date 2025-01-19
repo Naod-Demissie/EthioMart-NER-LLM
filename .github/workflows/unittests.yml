@@ -1,0 +1,23 @@
+name: Python application
+
+on:
+  push:
+    branches: [ "main" ]  # Runs on push to the main branch
+  pull_request:
+    branches: [ "main" ]  # Runs on pull request to the main branch
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest  # Use the latest version of Ubuntu
+
+    steps:
+    - uses: actions/checkout@v4  # Checks out the repository code
+
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.9"  # Set Python 3.9 version
