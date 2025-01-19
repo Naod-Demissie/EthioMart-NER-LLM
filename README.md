@@ -2,14 +2,13 @@
 
 This project focuses on extracting named entities from Telegram messages, tokenizing the data, and preparing it for further analysis. It utilizes various Python scripts, notebooks, and testing frameworks to facilitate efficient data processing.
 
+
 ## Project Structure
 
+
 ```
-            
 ├── notebooks
-│   ├── 1.0-data-prepocessing.ipynb 
-│   ├── 2.0-data-labeling.ipynb 
-│   ├── 3.0-tokenization.ipynb 
+│   ├── 1.0.data-prepocessing-and-exploration.ipynb 
 │   ├── README.md                 
 │   ├── __init__.py               
 │
@@ -18,15 +17,20 @@ This project focuses on extracting named entities from Telegram messages, tokeni
 ├── scripts
 │   ├── README.md                 
 │   ├── __init__.py               
-│   ├── load_data.py               
-│   ├── scrape.py               
+│   ├── preprocess_data.py               
+│   ├── scrape.py            
 │
 ├── src            
 │   ├── __init__.py               
 │
 ├── tests
-│   ├── __init__.py               
+│   ├── __init__.py  
+│
+├── data            
+│   ├── processed
+│       ├── processed_data.csv
 
+   
 ```
 
 ## Installation
