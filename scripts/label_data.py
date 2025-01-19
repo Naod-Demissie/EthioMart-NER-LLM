@@ -88,18 +88,18 @@ def label_data_conll(df, output_file):
 
 def load_conll_to_dataframe(conll_file):
     """
-    Loads CoNLL formatted labeled data into a DataFrame with message_id, token, and label.
+    Loads CoNLL formatted labeled data into a DataFrame with message_no, token, and label.
 
     Parameters:
         conll_file (str): Path to the CoNLL file to be loaded.
 
     Returns:
-        pd.DataFrame: DataFrame containing message_id, token, and label.
+        pd.DataFrame: DataFrame containing message_no, token, and label.
     """
-    message_id = 1
+    message_num = 1
     tokens = []
     labels = []
-    message_ids = []
+    message_nums = []
 
     with open(conll_file, "r", encoding="utf-8") as f:
         sentence = []
@@ -114,17 +114,15 @@ def load_conll_to_dataframe(conll_file):
                 for token, label in sentence:
                     tokens.append(token)
                     labels.append(label)
-                    message_ids.append(message_id)
+                    message_nums.append(message_num)
                 sentence = []
-                message_id += 1
+                message_num += 1
 
         # In case the last sentence doesn't end with a blank line
         for token, label in sentence:
             tokens.append(token)
             labels.append(label)
-            message_ids.append(message_id)
+            message_nums.append(message_num)
 
     # Create DataFrame
-    df = pd.DataFrame({"message_id": message_ids, "token": tokens, "label": labels})
-
-    return df
+    df = pd.DataFrame({"message_num": message_nums, "token": tokens, "label": labels})
