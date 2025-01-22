@@ -29,21 +29,17 @@ def initialize_model(model_name, num_labels):
         model_name, num_labels=num_labels
     )
 
-    # Specify target modules for LoRA
+    # Apply LoRA configuration
     lora_config = LoraConfig(
-        r=8,
-        lora_alpha=32,
-        lora_dropout=0.1,
-        bias="none",
-        task_type="TOKEN_CLS",
-        target_modules=[
-            "q_lin",
-            "k_lin",
-            "v_lin",
-            "out_lin",
-        ],
+        r=8, lora_alpha=32, lora_dropout=0.1, bias="none", task_type="TOKEN_CLS"
     )
+
+    # Only specify target_modules for 'distlbert-amh-telegram'
+    if model_name == "Naod-Demissie/distlbert-amh-telegram":
+        lora_config.target_modules = ["q_lin", "k_lin", "v_lin", "out_lin"]
+
     model = get_peft_model(base_model, lora_config)
+
     return model, tokenizer
 
 
@@ -174,9 +170,7 @@ def tokenize_and_align_labels(examples, tokenizer, model):  # Pass model as argu
             if word_idx is None:
                 label_ids.append(-100)
             elif word_idx != previous_word_idx:
-                label_ids.append(
-                    model.config.label2id[label[word_idx]]
-                )  # Now uses the model passed as argument
+                label_ids.append(model.config.label2id[label[word_idx]])
             else:
                 label_ids.append(-100)
             previous_word_idx = word_idx
@@ -189,26 +183,24 @@ def train_model(
     model, tokenizer, dataset, output_dir, logging_dir, batch_size=16, epochs=3, lr=5e-5
 ):
     """
-    Trains a token classification model using the Hugging Face Trainer API.
+    Trains and evaluates a token classification model using the Hugging Face Trainer API.
 
     Args:
         model (PreTrainedModel): The model to train.
         tokenizer (PreTrainedTokenizer): The corresponding tokenizer.
-        dataset (DatasetDict): The dataset containing "train" and "validation" splits.
+        dataset (DatasetDict): The dataset containing "train", "validation", and "test" splits.
         output_dir (str): Directory to save the trained model.
         logging_dir (str): Directory for training logs.
         batch_size (int, optional): Batch size (default: 16).
         epochs (int, optional): Number of epochs (default: 3).
         lr (float, optional): Learning rate (default: 5e-5).
 
-    This function tokenizes the dataset, trains the model, and saves the best-performing model.
+    This function tokenizes the dataset, trains the model, evaluates it, and saves the best-performing model.
     """
-    # tokenized_datasets = dataset.map(tokenize_and_align_labels, batched=True)
-    # In your train_model function, modify the dataset.map call
     tokenized_datasets = dataset.map(
         lambda examples: tokenize_and_align_labels(examples, tokenizer, model),
         batched=True,
-    )  # Pass model to tokenize_and_align_labels
+    )
 
     # Define training arguments
     training_args = TrainingArguments(
@@ -228,6 +220,7 @@ def train_model(
         push_to_hub=False,
         save_total_limit=2,
     )
+
     data_collator = DataCollatorForTokenClassification(tokenizer)
 
     trainer = Trainer(
@@ -240,30 +233,35 @@ def train_model(
         compute_metrics=compute_metrics,
     )
 
+    # Train the model
     trainer.train()
+
+    # Evaluate the model on the test set
+    test_results = trainer.evaluate(eval_dataset=tokenized_datasets["test"])
+    print("Test set evaluation results:", test_results)
+
+    # Save the trained model and tokenizer
     model.save_pretrained(output_dir)
     tokenizer.save_pretrained(output_dir)
 
+    return test_results
 
-def evaluate_model(model, tokenizer, dataset):
+
+def push_lora_model_to_hub(model, tokenizer, repo_id, token):
     """
-    Evaluates a trained token classification model on the test dataset.
+    Merges LoRA weights, saves the model and tokenizer, and pushes them to the Hugging Face Hub.
 
     Args:
-        model (PreTrainedModel): The trained model to evaluate.
-        tokenizer (PreTrainedTokenizer): The corresponding tokenizer.
-        dataset (DatasetDict): The dataset containing a "test" split.
-
-    Returns:
-        dict: Evaluation metrics, including loss and performance scores.
-
-    This function tokenizes the test dataset, initializes a Trainer, and evaluates the model.
+        model (PeftModel): The LoRA-adapted model.
+        tokenizer (AutoTokenizer): The tokenizer used for training.
+        repo_id (str): The Hugging Face model repository (e.g., "your-username/your-model-name").
+        token (str, optional): Hugging Face API token (if not logged in already).
     """
-    # Pass model to tokenize_and_align_labels
-    tokenized_datasets = dataset.map(
-        lambda examples: tokenize_and_align_labels(examples, tokenizer, model),
-        batched=True,
-    )
-    trainer = Trainer(model=model)
-    results = trainer.evaluate(eval_dataset=tokenized_datasets["test"])
-    return results
+
+    # Merge LoRA weights into the base model
+    merged_model = model.merge_and_unload()
+
+    merged_model.push_to_hub(token=token, repo_id=repo_id)
+    tokenizer.push_to_hub(token=token, repo_id=repo_id)
+
+    print(f"Model and tokenizer pushed to: https://huggingface.co/{repo_id}")
