@@ -12,6 +12,8 @@ This project focuses on extracting named entities from Telegram messages, tokeni
 │   ├── 2.0-data-auto-labeling.ipynb
 │   ├── 3.0-train-tokenizer.ipynb
 │   ├── 3.1-model-fine-tuning.ipynb
+│   ├── 4.0-model-comparison.ipynb
+│   ├── 5.0-model-interpretation.ipynb
 │   ├── README.md                 
 │   ├── __init__.py               
 │
@@ -25,6 +27,8 @@ This project focuses on extracting named entities from Telegram messages, tokeni
 │   ├── visualize.py           
 │   ├── label_data.py           
 │   ├── train.py           
+│   ├── compare.py           
+│   ├── interprate.py           
 │
 ├── src            
 │   ├── __init__.py               
